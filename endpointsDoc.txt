@@ -3,9 +3,6 @@ DENTAL NOTEBOOK     REST API DOCUMENTATION
 Development Base URL:
 http://localhost:5000
 
-
-
-
 RETRIEVING INFO FROM TODOS:
 
 GET request (todos.todo_item)
