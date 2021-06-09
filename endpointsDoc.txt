@@ -1,0 +1,145 @@
+DENTAL NOTEBOOK     REST API DOCUMENTATION
+
+Development Base URL:
+http://localhost:5000
+
+
+
+
+RETRIEVING INFO FROM TODOS:
+
+GET request (todos.todo_item)
+http://localhost:5000/todos
+
+
+ADD NEW INFO TO TODOS:
+
+POST request
+http://localhost:5000/todos
+
+
+DELETE INFO FROM TODOS:
+
+DELETE request
+http://localhost:5000/todos/:id
+
+
+______________________________________________
+
+
+RETRIEVING INFO FROM PATIENTS:
+
+GET request
+http://localhost:5000/patients
+
+GET request by id
+http://localhost:5000/patients/:id
+
+
+
+POSTING INFO TO PATIENTS:
+
+POST request
+http://localhost:5000/patients
+
+
+UPDATING INFO ON PATIENTS:
+
+PUT request
+http://localhost:5000/patients/:id
+
+
+Fields and types on 'Add/edit new patient':
+    
+    PERSONAL INFO:
+        Firstname -> string
+        Lastname -> string
+        Phone number -> string
+        Email -> string
+        Age -> int
+        Gender -> string
+        Occupation -> string
+
+    MEDICAL BACKGROUND:
+        High blood pressure -> boolean
+        Diabetes -> boolean
+        Active medication -> boolean
+        Allergies -> boolean
+
+    ATTACHMENTS:
+        images -> string (url)
+
+    TEETH MAP:
+        tooth -> int
+        dental status -> string
+        treatment -> string
+
+    TREATMENTS:
+        treatment type -> string
+        price -> int
+
+    APPOINTMENTS:
+        treatment -> string
+
+
+______________________________________________
+
+
+
+RETRIEVING INFO FROM APPOINTMENTS:
+
+GET request
+http://localhost:5000/appointments?date=""
+
+
+GET request by id
+http://localhost:5000/appointments/:id
+
+
+
+______________________________________________
+
+
+
+RETRIEVING INFO FROM TREATMENTS:
+
+GET request
+http://localhost:5000/treatments
+
+GET request by name
+http://localhost:5000/treatments/:id
+
+
+DELETE TREATMENT FROM TREATMENTS:
+
+DELETE request
+http://localhost:5000/treatments/:id
+
+
+EDIT TREATMENT FROM TREATMENTS:
+
+PUT request
+http://localhost:5000/treatments/:id
+
+
+ADD NEW TREATMENT TO TREATMENTS:
+
+POST request
+http://localhost:5000/treatments
+
+
+
+______________________________________________
+
+
+
+RETRIEVING INFO FROM EARNINGS
+
+GET request (treatments.price)
+http://localhost:5000/earnings
+
+
+GET request by date (treatments.created_at)
+http://localhost:5000/earnings/:date
+
+
