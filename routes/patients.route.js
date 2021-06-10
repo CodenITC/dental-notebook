@@ -33,6 +33,7 @@ router.get("/:id", (req, res) => {
 // POST /patients
 router.post("/", (req, res) => {
   const newPatient = req.body;
+
   connection.query(
     "INSERT INTO patients SET ?",
     [newPatient],
