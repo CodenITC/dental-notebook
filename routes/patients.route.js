@@ -4,11 +4,55 @@ const connection = require("../config-db");
 
 // GET /patients
 router.get("/", (req, res) => {
-  connection.query("SELECT * FROM patients", (error, results) => {
+  const sql = `SELECT patients.firstname,
+  patients.id as patient_id, 
+  patients.lastname, 
+  patients.phone, 
+  patients.email, 
+  patients.occupation, 
+  patients.age,
+  patients.created_at,
+  patients.gender,
+  medical_background.has_hbd,
+  medical_background.has_diabetes,
+  medical_background.has_active_medication,
+  medical_background.active_medication,
+  medical_background.has_alergies,
+  medical_background.alergies
+  FROM patients 
+  JOIN medical_background ON medical_background.patient_id = patients.id
+  JOIN teeth_map ON teeth_map.patient_id = patients.id`;
+
+  // JOIN treatments_teeth ON treatments_teeth.teeth_map_id = teeth_map.id
+  // JOIN treatments ON treatments_teeth.treatments_id = treatments.id
+
+  connection.query(sql.trim(), (error, patientResults) => {
     if (error) res.status(500).send(error);
     else {
-      if (results.length) res.status(200).json(results);
-      else res.status(404).send("Patients not found.");
+      if (patientResults.length) {
+        connection.query(
+          "SELECT treatments.name as treatment_name, teeth_map.patient_id, treatments_teeth.tooth, treatments_teeth.dental_status FROM treatments_teeth JOIN treatments ON treatments_teeth.treatments_id = treatments.id JOIN teeth_map ON teeth_map.id = treatments_teeth.teeth_map_id",
+          (error, TeethTreatmentResults) => {
+            if (error) res.status(500).send(error);
+            else {
+              for (let i = 0; i < patientResults.length; i++) {
+                patientResults[i].teeth_treatments = [];
+                for (let j = 0; j < TeethTreatmentResults.length; j++) {
+                  if (
+                    TeethTreatmentResults[j].patient_id ===
+                    patientResults[i].patient_id
+                  ) {
+                    patientResults[i].teeth_treatments.push(
+                      TeethTreatmentResults[j]
+                    );
+                  }
+                }
+              }
+              res.status(200).send(patientResults);
+            }
+          }
+        );
+      } else res.status(404).send("Patients not found.");
     }
   });
 });
@@ -32,7 +76,33 @@ router.get("/:id", (req, res) => {
 
 // POST /patients
 router.post("/", (req, res) => {
-  const newPatient = req.body;
+  const {
+    firstname,
+    lastname,
+    phone,
+    email,
+    occupation,
+    age,
+    patient_created_at,
+    gender,
+    has_hbd,
+    has_diabetes,
+    has_active_medication,
+    active_medication,
+    has_alergies,
+    alergies,
+  } = req.body;
+
+  const newPatient = {
+    firstname,
+    lastname,
+    phone,
+    email,
+    occupation,
+    age,
+    created_at: patient_created_at,
+    gender,
+  };
 
   connection.query(
     "INSERT INTO patients SET ?",
@@ -41,14 +111,38 @@ router.post("/", (req, res) => {
       if (error) res.status(500).send(error);
       else {
         const newPatientId = results.insertId;
+        const newPatientMedicalBackground = {
+          patient_id: newPatientId,
+          has_hbd,
+          has_diabetes,
+          has_active_medication,
+          active_medication,
+          has_alergies,
+          alergies,
+        };
+
         connection.query(
-          "SELECT * FROM patients WHERE id=?",
-          [newPatientId],
+          `INSERT INTO medical_background SET ?;`,
+          [newPatientMedicalBackground],
           (error, results) => {
             if (error) res.status(500).send(error);
-            else res.status(200).json(results[0]);
+            else {
+              const newPatientTeethMap = {
+                patient_id: newPatientId,
+              };
+              connection.query(
+                "INSERT INTO teeth_map SET ?",
+                [newPatientTeethMap],
+                (error, results) => {
+                  if (error) res.status(500).send(error);
+                  else res.status(200).json(results);
+                }
+              );
+            }
           }
         );
+
+        //
       }
     }
   );

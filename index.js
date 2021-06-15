@@ -7,6 +7,7 @@ const connection = require("./config-db");
 const todosRouter = require("./routes/todos.route.js");
 const patientsRouter = require("./routes/patients.route.js");
 const treatmentsRouter = require("./routes/treatments.route.js");
+const earningsRouter = require("./routes/earnings.route.js");
 
 connection.connect((error) => {
   if (error) console.log(error);
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use("/todos", todosRouter);
 app.use("/patients", patientsRouter);
 app.use("/treatments", treatmentsRouter);
+app.use("/earnings", earningsRouter);
 
 app.listen(port, (err) => {
   err ? console.log(err) : console.log(`App is running at port ${port}.`);

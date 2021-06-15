@@ -2,18 +2,18 @@ const express = require("express");
 const router = express.Router();
 const connection = require("../config-db");
 
-// GET /treatments:
+// GET /treatments
 router.get("/", (req, res) => {
   connection.query("SELECT * FROM treatments", (error, results) => {
     if (error) res.status(500).send(error);
     else {
       if (results.length) res.status(200).json(results);
-      else res.status(404).send("Treatment not found.");
+      else res.status(404).send("Treatments not found.");
     }
   });
 });
 
-// GET treatments by id
+// GET /treatments/:id
 router.get("/:id", (req, res) => {
   const treatmentId = req.params.id;
 
@@ -30,7 +30,7 @@ router.get("/:id", (req, res) => {
     }
   );
 });
-//DELETE request
+// DELETE /treatments/:id
 router.delete("/:id", (req, res) => {
   const treatmentId = req.params.id;
   connection.query(
@@ -43,6 +43,7 @@ router.delete("/:id", (req, res) => {
   );
 });
 
+// PUT /treatments/:id
 router.put("/:id", (req, res) => {
   const treatmentId = req.params.id;
   connection.query(
@@ -79,6 +80,7 @@ router.put("/:id", (req, res) => {
   );
 });
 
+// POST /treatments
 router.post("/", (req, res) => {
   const newTreatment = req.body;
   connection.query(
@@ -102,17 +104,3 @@ router.post("/", (req, res) => {
 });
 
 module.exports = router;
-
-/*
-
-EDIT TREATMENT FROM TREATMENTS:
-
-PUT request
-http://localhost:5000/treatments/:id
-
-
-ADD NEW TREATMENT TO TREATMENTS:
-
-POST request
-http://localhost:5000/treatments 
-*/
