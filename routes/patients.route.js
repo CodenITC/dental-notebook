@@ -58,7 +58,7 @@ router.get("/", (req, res) => {
 });
 
 // GET /patients/:id
-router.get("/:id", (req, res) => {
+/* router.get("/:id", (req, res) => {
   const patientId = req.params.id;
 
   connection.query(
@@ -72,7 +72,7 @@ router.get("/:id", (req, res) => {
       }
     }
   );
-});
+}); */
 
 // POST /patients
 router.post("/", (req, res) => {
@@ -151,6 +151,43 @@ router.post("/", (req, res) => {
 // PUT /patients/:id
 router.put("/:id", (req, res) => {
   const patientId = req.params.id;
+
+  const {
+    firstname,
+    lastname,
+    phone,
+    email,
+    occupation,
+    age,
+    patient_created_at,
+    gender,
+    has_hbd,
+    has_diabetes,
+    has_active_medication,
+    active_medication,
+    has_alergies,
+    alergies,
+  } = req.body;
+
+  const toBeEditedPatient = {
+    firstname,
+    lastname,
+    phone,
+    email,
+    occupation,
+    age,
+    gender,
+  };
+
+  const toBeEditedMedicalBackground = {
+    has_hbd,
+    has_diabetes,
+    has_active_medication,
+    active_medication,
+    has_alergies,
+    alergies,
+  };
+
   connection.query(
     "SELECT * FROM patients WHERE id = ?",
     [patientId],
@@ -160,19 +197,29 @@ router.put("/:id", (req, res) => {
       } else {
         const patientFromDb = results[0];
         if (patientFromDb) {
-          const updatedPatient = req.body;
+          // const updatedPatient = req.body;
           connection.query(
             "UPDATE patients SET ? WHERE id = ?",
-            [updatedPatient, patientId],
+            [toBeEditedPatient, patientId],
             (error) => {
               if (error) {
                 res.status(500).send(error);
               } else {
-                const updatedPatientInfo = {
-                  ...patientFromDb,
-                  ...updatedPatient,
-                };
-                res.status(200).json(updatedPatientInfo);
+                connection.query(
+                  "UPDATE medical_background SET ? WHERE patient_id = ?",
+                  [toBeEditedMedicalBackground, patientId],
+                  (error) => {
+                    if (error) {
+                      res.status(500).send(error);
+                    }
+                  }
+                );
+
+                // const updatedPatientInfo = {
+                //   ...patientFromDb,
+                //   ...toBeEditedPatient,
+                // };
+                // res.status(200).json(updatedPatientInfo);
               }
             }
           );
