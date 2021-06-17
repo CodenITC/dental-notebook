@@ -1,6 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const connection = require("../config-db");
+const {
+  objectKeyFormatter,
+  patientObjectTemplateCreator,
+} = require("../helpers/helperFunctions");
+const {
+  patientObjectTemplate,
+  medicalBackgroundObjectTemplate,
+} = require("../helpers/helperObjects");
 
 // GET /patients
 router.get("/", (req, res) => {
@@ -22,9 +30,6 @@ router.get("/", (req, res) => {
   FROM patients 
   JOIN medical_background ON medical_background.patient_id = patients.id
   JOIN teeth_map ON teeth_map.patient_id = patients.id`;
-
-  // JOIN treatments_teeth ON treatments_teeth.teeth_map_id = teeth_map.id
-  // JOIN treatments ON treatments_teeth.treatments_id = treatments.id
 
   connection.query(sql.trim(), (error, patientResults) => {
     if (error) res.status(500).send(error);
@@ -152,41 +157,17 @@ router.post("/", (req, res) => {
 router.put("/:id", (req, res) => {
   const patientId = req.params.id;
 
-  const {
-    firstname,
-    lastname,
-    phone,
-    email,
-    occupation,
-    age,
-    patient_created_at,
-    gender,
-    has_hbd,
-    has_diabetes,
-    has_active_medication,
-    active_medication,
-    has_alergies,
-    alergies,
-  } = req.body;
+  const toBeEditedPatient = objectKeyFormatter(
+    patientObjectTemplateCreator(req, patientObjectTemplate)
+  );
 
-  const toBeEditedPatient = {
-    firstname,
-    lastname,
-    phone,
-    email,
-    occupation,
-    age,
-    gender,
-  };
+  console.log(toBeEditedPatient);
 
-  const toBeEditedMedicalBackground = {
-    has_hbd,
-    has_diabetes,
-    has_active_medication,
-    active_medication,
-    has_alergies,
-    alergies,
-  };
+  const toBeEditedMedicalBackground = objectKeyFormatter(
+    patientObjectTemplateCreator(req, medicalBackgroundObjectTemplate)
+  );
+
+  console.log(toBeEditedMedicalBackground);
 
   connection.query(
     "SELECT * FROM patients WHERE id = ?",
@@ -197,7 +178,6 @@ router.put("/:id", (req, res) => {
       } else {
         const patientFromDb = results[0];
         if (patientFromDb) {
-          // const updatedPatient = req.body;
           connection.query(
             "UPDATE patients SET ? WHERE id = ?",
             [toBeEditedPatient, patientId],
@@ -211,15 +191,17 @@ router.put("/:id", (req, res) => {
                   (error) => {
                     if (error) {
                       res.status(500).send(error);
+                    } else {
+                      /// todo
+
+                      const updatedPatientInfo = {
+                        ...patientFromDb,
+                        ...toBeEditedPatient,
+                      };
+                      res.status(200).json(updatedPatientInfo);
                     }
                   }
                 );
-
-                // const updatedPatientInfo = {
-                //   ...patientFromDb,
-                //   ...toBeEditedPatient,
-                // };
-                // res.status(200).json(updatedPatientInfo);
               }
             }
           );
