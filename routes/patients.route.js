@@ -81,33 +81,11 @@ router.get("/", (req, res) => {
 
 // POST /patients
 router.post("/", (req, res) => {
-  const {
-    firstname,
-    lastname,
-    phone,
-    email,
-    occupation,
-    age,
-    patient_created_at,
-    gender,
-    has_hbd,
-    has_diabetes,
-    has_active_medication,
-    active_medication,
-    has_alergies,
-    alergies,
-  } = req.body;
+  const newPatient = objectKeyFormatter(
+    patientObjectTemplateCreator(req, patientObjectTemplate)
+  );
 
-  const newPatient = {
-    firstname,
-    lastname,
-    phone,
-    email,
-    occupation,
-    age,
-    created_at: patient_created_at,
-    gender,
-  };
+  console.log(newPatient);
 
   connection.query(
     "INSERT INTO patients SET ?",
@@ -116,15 +94,10 @@ router.post("/", (req, res) => {
       if (error) res.status(500).send(error);
       else {
         const newPatientId = results.insertId;
-        const newPatientMedicalBackground = {
-          patient_id: newPatientId,
-          has_hbd,
-          has_diabetes,
-          has_active_medication,
-          active_medication,
-          has_alergies,
-          alergies,
-        };
+        const newPatientMedicalBackground = objectKeyFormatter(
+          patientObjectTemplateCreator(req, medicalBackgroundObjectTemplate)
+        );
+        newPatientMedicalBackground.patient_id = newPatientId;
 
         connection.query(
           `INSERT INTO medical_background SET ?;`,
@@ -146,8 +119,107 @@ router.post("/", (req, res) => {
             }
           }
         );
+      }
+    }
+  );
+});
 
-        //
+//post//teeth-treatments
+router.post("/teeth-treatments", (req, res) => {
+  const newTeethTreatments = req.body;
+  connection.query(
+    "INSERT INTO treatments_teeth SET ?",
+    [newTeethTreatments],
+    (error, results) => {
+      if (error) res.status(500).send(error);
+      else {
+        const newTeethTreatmentsId = results.insertId;
+        connection.query(
+          "SELECT * FROM treatments_teeth WHERE id = ?",
+          [newTeethTreatmentsId],
+          (error, results) => {
+            if (error) res.status(500).send(error);
+            else res.status(200).json(results[0]);
+          }
+        );
+      }
+    }
+  );
+});
+
+// PUT /patients/teeth-treatments/:id
+router.put("/teeth-treatments/:id", (req, res) => {
+  const teethTreatmentsId = req.params.id;
+
+  connection.query(
+    "SELECT * FROM treatments_teeth WHERE id = ?",
+    [teethTreatmentsId],
+    (error, results) => {
+      if (error) res.status(500).send(error);
+      else {
+        const teethTreatmentsFromDb = results[0];
+
+        if (teethTreatmentsFromDb) {
+          const updatedTeethTreatments = req.body;
+
+          connection.query(
+            "UPDATE treatments_teeth SET ? WHERE id = ?",
+            [updatedTeethTreatments, teethTreatmentsId],
+            (error) => {
+              if (error) {
+                res.status(500).send(error);
+              } else {
+                const updatedTeethTreatmentsInfo = {
+                  ...teethTreatmentsFromDb,
+                  ...updatedTeethTreatments,
+                };
+                res.status(200).json(updatedTeethTreatmentsInfo);
+              }
+            }
+          );
+        } else {
+          res
+            .status(404)
+            .send(
+              `Teeth Treatment with the id ${teethTreatmentsId} not found.`
+            );
+        }
+      }
+    }
+  );
+});
+
+// DELETE /patients/teeth-treatments/:id
+router.delete("/teeth-treatments/:id", (req, res) => {
+  const teethTreatmentsId = req.params.id;
+
+  connection.query(
+    "SELECT * FROM treatments_teeth WHERE id = ?",
+    [teethTreatmentsId],
+    (error, results) => {
+      if (error) res.status(500).send(error);
+      else {
+        const teethTreatmentsFromDb = results[0];
+        if (teethTreatmentsFromDb) {
+          connection.query(
+            "DELETE FROM treatments_teeth WHERE id = ?",
+            [teethTreatmentsId],
+            (error, results) => {
+              if (error) res.status(500).send(error);
+              else {
+                res
+                  .status(200)
+                  .send(`The teeth treatment was successfully deleted`);
+              }
+            }
+          );
+        } else {
+          res
+            .status(404)
+            .send(
+              `The teeth treatment with the id ${teethTreatmentsId} was not found`
+            );
+        }
       }
     }
   );
