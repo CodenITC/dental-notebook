@@ -1,4 +1,5 @@
 const express = require("express");
+const { query } = require("../config-db");
 const router = express.Router();
 const connection = require("../config-db");
 const {
@@ -9,57 +10,45 @@ const {
   patientObjectTemplate,
   medicalBackgroundObjectTemplate,
 } = require("../helpers/helperObjects");
+const {
+  sqlPatientAndMedicalBackgroundInfo,
+  sqlTreatmentsTeethMapInfo,
+} = require("../helpers/helperVariables");
 
 // GET /patients
 router.get("/", (req, res) => {
-  const sql = `SELECT patients.firstname,
-  patients.id as patient_id, 
-  patients.lastname, 
-  patients.phone, 
-  patients.email, 
-  patients.occupation, 
-  patients.age,
-  patients.created_at,
-  patients.gender,
-  medical_background.has_hbd,
-  medical_background.has_diabetes,
-  medical_background.has_active_medication,
-  medical_background.active_medication,
-  medical_background.has_alergies,
-  medical_background.alergies
-  FROM patients 
-  JOIN medical_background ON medical_background.patient_id = patients.id
-  JOIN teeth_map ON teeth_map.patient_id = patients.id`;
-
-  connection.query(sql.trim(), (error, patientResults) => {
-    if (error) res.status(500).send(error);
-    else {
-      if (patientResults.length) {
-        connection.query(
-          "SELECT treatments.name as treatment_name, teeth_map.patient_id, treatments_teeth.tooth, treatments_teeth.dental_status FROM treatments_teeth JOIN treatments ON treatments_teeth.treatments_id = treatments.id JOIN teeth_map ON teeth_map.id = treatments_teeth.teeth_map_id",
-          (error, TeethTreatmentResults) => {
-            if (error) res.status(500).send(error);
-            else {
-              for (let i = 0; i < patientResults.length; i++) {
-                patientResults[i].teeth_treatments = [];
-                for (let j = 0; j < TeethTreatmentResults.length; j++) {
-                  if (
-                    TeethTreatmentResults[j].patient_id ===
-                    patientResults[i].patient_id
-                  ) {
-                    patientResults[i].teeth_treatments.push(
-                      TeethTreatmentResults[j]
-                    );
+  connection.query(
+    sqlPatientAndMedicalBackgroundInfo.trim(),
+    (error, patientResults) => {
+      if (error) res.status(500).send(error);
+      else {
+        if (patientResults.length) {
+          connection.query(
+            sqlTreatmentsTeethMapInfo.trim(),
+            (error, TeethTreatmentResults) => {
+              if (error) res.status(500).send(error);
+              else {
+                for (let i = 0; i < patientResults.length; i++) {
+                  patientResults[i].teeth_treatments = [];
+                  for (let j = 0; j < TeethTreatmentResults.length; j++) {
+                    if (
+                      TeethTreatmentResults[j].patient_id ===
+                      patientResults[i].patient_id
+                    ) {
+                      patientResults[i].teeth_treatments.push(
+                        TeethTreatmentResults[j]
+                      );
+                    }
                   }
                 }
+                res.status(200).send(patientResults);
               }
-              res.status(200).send(patientResults);
             }
-          }
-        );
-      } else res.status(404).send("Patients not found.");
+          );
+        } else res.status(404).send("Patients not found.");
+      }
     }
-  });
+  );
 });
 
 // GET /patients/:id
@@ -233,13 +222,13 @@ router.put("/:id", (req, res) => {
     patientObjectTemplateCreator(req, patientObjectTemplate)
   );
 
-  console.log(toBeEditedPatient);
+  // console.log(toBeEditedPatient);
 
   const toBeEditedMedicalBackground = objectKeyFormatter(
     patientObjectTemplateCreator(req, medicalBackgroundObjectTemplate)
   );
 
-  console.log(toBeEditedMedicalBackground);
+  // console.log(toBeEditedMedicalBackground);
 
   connection.query(
     "SELECT * FROM patients WHERE id = ?",
@@ -248,35 +237,41 @@ router.put("/:id", (req, res) => {
       if (error) {
         res.status(500).send(error);
       } else {
-        const patientFromDb = results[0];
-        if (patientFromDb) {
-          connection.query(
-            "UPDATE patients SET ? WHERE id = ?",
-            [toBeEditedPatient, patientId],
-            (error) => {
-              if (error) {
-                res.status(500).send(error);
-              } else {
-                connection.query(
-                  "UPDATE medical_background SET ? WHERE patient_id = ?",
-                  [toBeEditedMedicalBackground, patientId],
-                  (error) => {
-                    if (error) {
-                      res.status(500).send(error);
-                    } else {
-                      /// todo
+        // const { firstname, lastname, phone, email, occupation, age, gender } =
+        //   req.body;
 
-                      const updatedPatientInfo = {
-                        ...patientFromDb,
-                        ...toBeEditedPatient,
-                      };
-                      res.status(200).json(updatedPatientInfo);
-                    }
-                  }
-                );
-              }
-            }
-          );
+        const db = connection.promise();
+
+        const patientFromDb = results[0];
+
+        if (patientFromDb) {
+          const queryPromises = [];
+
+          if (Object.keys(toBeEditedPatient).length) {
+            const updatePatientsWhereId = db.query(
+              "UPDATE patients SET ? WHERE id = ?",
+              [toBeEditedPatient, patientId]
+            );
+            queryPromises.push(updatePatientsWhereId);
+          }
+
+          if (Object.keys(toBeEditedMedicalBackground).length) {
+            const updateMedicalBackgroundWherePatientId = db.query(
+              "UPDATE medical_background SET ? WHERE patient_id = ?",
+              [toBeEditedMedicalBackground, patientId]
+
+              // should return medical_background, patient, teeth map, teeth_treatments
+              // WHERE patient id is equal to the one we are editing
+              // 1. use the sql string inside the get all patients, externalise to a new file for resuability
+              // 2. add a where clause to the string to bring back one patient
+              // 3. Use the teeth_treatments sql query on the get all patients and do a join on the teeth_map but again adding the where clause by id (think about what id can be used)
+              // 4. return the patient object containing medical_background, patient, teeth_treatments
+            );
+            queryPromises.push(updateMedicalBackgroundWherePatientId);
+          }
+
+          // TO DO THE QUERY (SELECT) LIKE IN GET /patients (each) - engrish
+          Promise.all(queryPromises).then((values) => console.log(values));
         } else {
           res.status(404).send(`Patient with the id ${patientId} not found`);
         }
