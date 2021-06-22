@@ -73,8 +73,6 @@ router.post("/", (req, res) => {
     patientObjectTemplateCreator(req, patientObjectTemplate)
   );
 
-  console.log(newPatient);
-
   connection.query(
     "INSERT INTO patients SET ?",
     [newPatient],

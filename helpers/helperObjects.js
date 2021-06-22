@@ -18,7 +18,12 @@ const medicalBackgroundObjectTemplate = {
   alergies: "",
 };
 
+const appointmentsObjectTemplate = {
+  appointment_date: "",
+};
+
 module.exports = {
   patientObjectTemplate,
   medicalBackgroundObjectTemplate,
+  appointmentsObjectTemplate,
 };
