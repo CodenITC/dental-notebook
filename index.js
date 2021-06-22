@@ -8,6 +8,7 @@ const todosRouter = require("./routes/todos.route.js");
 const patientsRouter = require("./routes/patients.route.js");
 const treatmentsRouter = require("./routes/treatments.route.js");
 const earningsRouter = require("./routes/earnings.route.js");
+const teethTreatmentsRouter = require("./routes/teethTreatments.route.js");
 
 connection.connect((error) => {
   if (error) console.log(error);
@@ -19,6 +20,7 @@ app.use("/todos", todosRouter);
 app.use("/patients", patientsRouter);
 app.use("/treatments", treatmentsRouter);
 app.use("/earnings", earningsRouter);
+app.use("/patients/teeth-treatments", teethTreatmentsRouter);
 
 app.listen(port, (err) => {
   err ? console.log(err) : console.log(`App is running at port ${port}.`);
