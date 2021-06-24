@@ -25,8 +25,15 @@ JOIN teeth_map ON teeth_map.id = treatments_teeth.teeth_map_id`;
 const sqlPatientAppointment = `SELECT CONCAT(patients.firstname,' ', patients.lastname) as patient_name, appointments.appointment_date 
   FROM patients JOIN appointments ON patients.id = appointments.patient_id`;
 
+const sqlAppointmentsAppointmentTreatments = `SELECT patients.firstname, patients.lastname, patients.phone, appointments.appointment_date, appointments.patient_id, appointment_treatments.treatments_id, appointment_treatments.appointments_id
+  FROM appointments
+  JOIN patients ON patients.id = appointments.patient_id
+  JOIN appointment_treatments ON appointments.id = appointment_treatments.appointments_id
+  WHERE appointments.id = ?`;
+
 module.exports = {
   sqlPatientAndMedicalBackgroundInfo,
   sqlTreatmentsTeethMapInfo,
   sqlPatientAppointment,
+  sqlAppointmentsAppointmentTreatments,
 };
