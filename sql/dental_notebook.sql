@@ -74,8 +74,8 @@ ALTER TABLE `treatments_teeth` ADD FOREIGN KEY (`treatments_id`) REFERENCES `tre
 
 ALTER TABLE `medical_background` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`);
 
-ALTER TABLE `appointment_treatments` ADD FOREIGN KEY (`appointments_id`) REFERENCES `appointments` (`id`);
+ALTER TABLE `appointment_treatments` ADD FOREIGN KEY (`appointments_id`) REFERENCES `appointments` (`id`) ON DELETE CASCADE;
 
-ALTER TABLE `appointment_treatments` ADD FOREIGN KEY (`treatments_id`) REFERENCES `treatments` (`id`);
+ALTER TABLE `appointment_treatments` ADD FOREIGN KEY (`treatments_id`) REFERENCES `treatments` (`id`) ON DELETE CASCADE;
 
 ALTER TABLE `appointments` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`);

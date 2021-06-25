@@ -32,42 +32,40 @@ router.post("/", (req, res) => {
     patientObjectTemplateCreator(req, appointmentsObjectTemplate)
   );
 
-  // should remove it
-  const newAppointmentTreatment = objectKeyFormatter(
-    patientObjectTemplateCreator(req, appointmentTreatmentsObjectTemplate)
-  );
-
   connection.query(
     "INSERT INTO appointments SET ?",
     [newAppointment],
-    (error, results) => {
+    (error, appointmentResults) => {
       if (error) res.status(500).send(error);
       else {
-        const newAppointmentId = results.insertId;
+        const newAppointmentId = appointmentResults.insertId;
+        const { appointment_treatments } = req.body;
+        let appointedTreatment = {};
+        const db = connection.promise();
 
-        // do map here from array that comes from front end
+        const queryPromises = [];
 
-        const appointedTreatment = {
-          ...newAppointmentTreatment,
-          appointments_id: newAppointmentId,
-        };
-        connection.query(
-          "INSERT INTO appointment_treatments SET ?",
-          [appointedTreatment],
-          (error, results) => {
-            if (error) res.status(500).send(error);
-            else {
-              connection.query(
-                sqlAppointmentsAppointmentTreatments,
-                [newAppointmentId],
-                (error, results) => {
-                  if (error) res.status(500).send(error);
-                  else res.status(200).json(results[0]);
-                }
-              );
-            }
-          }
-        );
+        for (let i = 0; i < appointment_treatments.length; i++) {
+          appointedTreatment = {
+            treatments_id: appointment_treatments[i],
+            appointments_id: newAppointmentId,
+          };
+
+          const newAppointedTreatment = db.query(
+            "INSERT INTO appointment_treatments SET ?",
+            [appointedTreatment]
+          );
+
+          queryPromises.push(newAppointedTreatment);
+        }
+
+        Promise.all(queryPromises)
+          .then((result) => {
+            res
+              .status(200)
+              .send("All the treatments were created successfully.");
+          })
+          .catch((error) => res.status(500).send(error));
       }
     }
   );
@@ -142,6 +140,10 @@ router.put("/:id", (req, res) => {
 });
 
 // DELETE /appointments/:id TO BE JUDGED
+// ALTER TABLE MasterTable
+// ADD CONSTRAINT fk_xyz
+// FOREIGN KEY (xyz)
+// REFERENCES ChildTable (xyz) ON DELETE CASCADE
 router.delete("/:id", (req, res) => {
   const appointmentId = req.params.id;
   connection.query(
