@@ -7,7 +7,8 @@ const {
 } = require("../helpers/helperFunctions");
 const {
   sqlPatientAppointment,
-  sqlAppointmentsAppointmentTreatments,
+  sqlIndividualAppointment,
+  appointedTreatment,
 } = require("../helpers/helperVariables");
 const {
   appointmentsObjectTemplate,
@@ -17,11 +18,28 @@ const {
 
 // GET /appointments
 router.get("/", (req, res) => {
-  connection.query(sqlPatientAppointment, (error, results) => {
+  connection.query(sqlPatientAppointment, (error, appointmentsResults) => {
     if (error) res.status(500).send(error);
     else {
-      if (results.length) res.status(200).json(results);
-      else res.status(404).send("Appointments not found.");
+      if (appointmentsResults.length) {
+        connection.query(appointedTreatment, (error, TreatmentResults) => {
+          if (error) res.status(500).send(error);
+          else {
+            for (let i = 0; i < appointmentsResults.length; i++) {
+              appointmentsResults[i].treatments = [];
+              for (let j = 0; j < TreatmentResults.length; j++) {
+                if (
+                  TreatmentResults[j].appointments_id ===
+                  appointmentsResults[i].appointments_id
+                ) {
+                  appointmentsResults[i].treatments.push(TreatmentResults[j]);
+                }
+              }
+            }
+            res.status(200).json(appointmentsResults);
+          }
+        });
+      } else res.status(404).send("Appointments not found.");
     }
   });
 });
@@ -61,9 +79,28 @@ router.post("/", (req, res) => {
 
         Promise.all(queryPromises)
           .then((result) => {
-            res
-              .status(200)
-              .send("All the treatments were created successfully.");
+            connection.query(
+              sqlIndividualAppointment,
+              [newAppointmentId],
+              (error, appointment) => {
+                if (error) res.status(500).send(error);
+                else {
+                  connection.query(
+                    `SELECT * FROM appointment_treatments
+                                      JOIN treatments ON treatments.id = appointment_treatments.treatments_id
+                                      WHERE appointment_treatments.appointments_id = ?`,
+                    [newAppointmentId],
+                    (err, appointmentTreatments) => {
+                      if (err) res.status(500).send(err);
+                      else {
+                        appointment[0].treatments = appointmentTreatments;
+                        res.status(200).json(appointment[0]);
+                      }
+                    }
+                  );
+                }
+              }
+            );
           })
           .catch((error) => res.status(500).send(error));
       }
@@ -71,19 +108,11 @@ router.post("/", (req, res) => {
   );
 });
 
-// PUT /appointments/:id TO BE JUDGED
+// PUT /appointments/:id
 router.put("/:id", (req, res) => {
   const appointmentId = req.params.id;
   const appointmentToEdit = objectKeyFormatter(
     patientObjectTemplateCreator(req, appointmentsObjectTemplate)
-  );
-
-  const apointmentTreatmentsToEdit = objectKeyFormatter(
-    patientObjectTemplateCreator(req, appointmentTreatmentsObjectTemplate)
-  );
-
-  const patientBasicInfosToEdit = objectKeyFormatter(
-    patientObjectTemplateCreator(req, patientBasicInfosObjectTemplate)
   );
 
   connection.query(
@@ -97,15 +126,6 @@ router.put("/:id", (req, res) => {
 
         if (appointmentFromDb) {
           const queryPromises = [];
-          const patientId = req.body.patient_id;
-
-          if (Object.keys(patientBasicInfosToEdit).length) {
-            const updatePatientBasicInfosWhereId = db.query(
-              "UPDATE patients SET ? WHERE id = ?",
-              [patientBasicInfosToEdit, patientId]
-            );
-            queryPromises.push(updatePatientBasicInfosWhereId);
-          }
 
           if (Object.keys(appointmentToEdit).length) {
             const updateAppointmentWhereId = db.query(
@@ -115,35 +135,59 @@ router.put("/:id", (req, res) => {
             queryPromises.push(updateAppointmentWhereId);
           }
 
-          if (Object.keys(apointmentTreatmentsToEdit).length) {
-            const updateApointmentTreatmentsWhereId = db.query(
-              "UPDATE appointment_treatments SET ? WHERE appointments_id = ?",
-              [apointmentTreatmentsToEdit, appointmentId]
-            );
-            queryPromises.push(updateApointmentTreatmentsWhereId);
+          if (req.body.treatments.length) {
+            db.query(
+              "DELETE FROM appointment_treatments WHERE appointments_id = ?",
+              [appointmentId]
+            ).then(() => {
+              const treatmentsArray = req.body.treatments;
+
+              for (let i = 0; i < treatmentsArray.length; i++) {
+                let appointmentTreatmentCreator = connection.query(
+                  `INSERT INTO appointment_treatments
+                                  (appointments_id, treatments_id) VALUES (?, ?)`,
+                  [appointmentId, treatmentsArray[i]],
+                  (err) => err && res.status(500).send(err)
+                );
+                queryPromises.push(appointmentTreatmentCreator);
+              }
+            });
           }
 
           Promise.all(queryPromises).then((values) => {
             connection.query(
-              sqlAppointmentsAppointmentTreatments,
+              sqlIndividualAppointment,
               [appointmentId],
-              (error, results) => {
+              (error, appointment) => {
                 if (error) res.status(500).send(error);
-                else res.status(200).json(results);
+                else {
+                  connection.query(
+                    `SELECT * FROM appointment_treatments
+                                      JOIN treatments ON treatments.id = appointment_treatments.treatments_id
+                                      WHERE appointment_treatments.appointments_id = ?`,
+                    [appointmentId],
+                    (err, appointmentTreatments) => {
+                      if (err) res.status(500).send(err);
+                      else {
+                        appointment[0].treatments = appointmentTreatments;
+                        res.status(200).json(appointment[0]);
+                      }
+                    }
+                  );
+                }
               }
             );
           });
-        }
+        } else
+          res.status(404).json({
+            errorMessage: `Appointment with id ${appointmentId} not found.`,
+          });
       }
     }
   );
 });
 
-// DELETE /appointments/:id TO BE JUDGED
-// ALTER TABLE MasterTable
-// ADD CONSTRAINT fk_xyz
-// FOREIGN KEY (xyz)
-// REFERENCES ChildTable (xyz) ON DELETE CASCADE
+// DELETE /appointments/:id
 router.delete("/:id", (req, res) => {
   const appointmentId = req.params.id;
   connection.query(
