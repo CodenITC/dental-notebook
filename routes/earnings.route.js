@@ -27,9 +27,7 @@ router.get("/last-month", (req, res) => {
     .month(moment().month() - 1)
     .endOf("month")
     .format("YYYY-MM-DD");
-  console.log(startDate, endDate);
   let sqlMonthlyEarning = `${sqlEarnings} WHERE appointments.appointment_date >= '${startDate}' AND appointments.appointment_date <= '${endDate}'`;
-  // WHERE (date_field BETWEEN '2010-01-30 14:15:55' AND '2010-09-29 10:15:55')
   console.log(sqlMonthlyEarning);
   connection.query(sqlMonthlyEarning, (error, results) => {
     if (error) res.status(500).send(error);

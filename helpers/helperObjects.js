@@ -23,21 +23,8 @@ const appointmentsObjectTemplate = {
   patient_id: "",
 };
 
-const appointmentTreatmentsObjectTemplate = {
-  appointment_id: "",
-  treatments_id: "",
-};
-
-const patientBasicInfosObjectTemplate = {
-  firstname: "",
-  lastname: "",
-  phone: "",
-};
-
 module.exports = {
   patientObjectTemplate,
   medicalBackgroundObjectTemplate,
   appointmentsObjectTemplate,
-  appointmentTreatmentsObjectTemplate,
-  patientBasicInfosObjectTemplate,
 };

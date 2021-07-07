@@ -10,11 +10,7 @@ const {
   sqlIndividualAppointment,
   appointedTreatment,
 } = require("../helpers/helperVariables");
-const {
-  appointmentsObjectTemplate,
-  appointmentTreatmentsObjectTemplate,
-  patientBasicInfosObjectTemplate,
-} = require("../helpers/helperObjects");
+const { appointmentsObjectTemplate } = require("../helpers/helperObjects");
 
 // GET /appointments
 router.get("/", (req, res) => {
