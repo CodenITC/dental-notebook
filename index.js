@@ -10,7 +10,6 @@ const treatmentsRouter = require("./routes/treatments.route.js");
 const earningsRouter = require("./routes/earnings.route.js");
 const teethTreatmentsRouter = require("./routes/teethTreatments.route.js");
 const appointmentsRouter = require("./routes/appointments.route.js");
-const priceListRouter = require("./routes/priceList.route.js");
 
 connection.connect((error) => {
   if (error) console.log(error);
@@ -24,7 +23,6 @@ app.use("/treatments", treatmentsRouter);
 app.use("/earnings", earningsRouter);
 app.use("/patients/teeth-treatments", teethTreatmentsRouter);
 app.use("/appointments", appointmentsRouter);
-app.use("/price-list", priceListRouter);
 
 app.listen(port, (err) => {
   err ? console.log(err) : console.log(`App is running at port ${port}.`);

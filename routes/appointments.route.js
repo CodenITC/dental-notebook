@@ -44,7 +44,7 @@ router.get("/", (req, res) => {
   });
 });
 
-// POST appointments TO BE JUDGED
+// POST appointments
 router.post("/", (req, res) => {
   const newAppointment = objectKeyFormatter(
     patientObjectTemplateCreator(req, appointmentsObjectTemplate)

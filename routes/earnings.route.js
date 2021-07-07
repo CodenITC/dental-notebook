@@ -1,13 +1,40 @@
 const express = require("express");
 const router = express.Router();
+const moment = require("moment");
 const connection = require("../config-db");
+let { sqlEarnings } = require("../helpers/helperVariables");
 
 // GET /earnings
 router.get("/", (req, res) => {
-  connection.query("SELECT price FROM treatments", (error, results) => {
+  let sqlTotalEarning = (sqlEarnings +=
+    " WHERE appointments.appointment_date < CURRENT_DATE()");
+
+  connection.query(sqlTotalEarning, (error, results) => {
     if (error) res.status(500).send(error);
     else {
-      if (results.length) res.status(200).json(results);
+      if (results.length) res.status(200).json(results[0]);
+      else res.status(404).send("Earnings not found");
+    }
+  });
+});
+
+router.get("/last-month", (req, res) => {
+  const startDate = moment()
+    .month(moment().month() - 1)
+    .startOf("month")
+    .format("YYYY-MM-DD");
+  const endDate = moment()
+    .month(moment().month() - 1)
+    .endOf("month")
+    .format("YYYY-MM-DD");
+  console.log(startDate, endDate);
+  let sqlMonthlyEarning = `${sqlEarnings} WHERE appointments.appointment_date >= '${startDate}' AND appointments.appointment_date <= '${endDate}'`;
+  // WHERE (date_field BETWEEN '2010-01-30 14:15:55' AND '2010-09-29 10:15:55')
+  console.log(sqlMonthlyEarning);
+  connection.query(sqlMonthlyEarning, (error, results) => {
+    if (error) res.status(500).send(error);
+    else {
+      if (results.length) res.status(200).json(results[0]);
       else res.status(404).send("Earnings not found");
     }
   });

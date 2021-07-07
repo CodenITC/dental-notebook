@@ -32,10 +32,16 @@ const sqlIndividualAppointment = `SELECT patients.firstname, patients.lastname, 
 
 const appointedTreatment = `SELECT * FROM appointment_treatments JOIN treatments ON treatments.id = appointment_treatments.treatments_id`;
 
+let sqlEarnings = `SELECT SUM(treatments.price) AS total_earnings
+                          FROM treatments
+                          JOIN appointment_treatments ON treatments.id = appointment_treatments.treatments_id
+                          JOIN appointments ON appointments.id = appointment_treatments.appointments_id`;
+
 module.exports = {
   sqlPatientAndMedicalBackgroundInfo,
   sqlTreatmentsTeethMapInfo,
   sqlPatientAppointment,
   sqlIndividualAppointment,
   appointedTreatment,
+  sqlEarnings,
 };
