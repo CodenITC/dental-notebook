@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 const moment = require("moment");
 const connection = require("../config-db");
-let { sqlEarnings } = require("../helpers/helperVariables");
+let {
+  sqlEarnings,
+  sqlEarningsOrderedByDate,
+} = require("../helpers/helperVariables");
 
 // GET /earnings
 router.get("/", (req, res) => {
@@ -33,6 +36,17 @@ router.get("/last-month", (req, res) => {
     if (error) res.status(500).send(error);
     else {
       if (results.length) res.status(200).json(results[0]);
+      else res.status(404).send("Earnings not found");
+    }
+  });
+});
+
+router.get("/earnings-by-date", (req, res) => {
+  connection.query(sqlEarningsOrderedByDate, (error, earningsByDateResults) => {
+    if (error) res.status(500).send(error);
+    else {
+      if (earningsByDateResults.length)
+        res.status(200).json(earningsByDateResults);
       else res.status(404).send("Earnings not found");
     }
   });

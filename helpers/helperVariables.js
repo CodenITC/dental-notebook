@@ -37,6 +37,14 @@ let sqlEarnings = `SELECT SUM(treatments.price) AS total_earnings
                           JOIN appointment_treatments ON treatments.id = appointment_treatments.treatments_id
                           JOIN appointments ON appointments.id = appointment_treatments.appointments_id`;
 
+let sqlEarningsOrderedByDate = `SELECT treatments.name, appointments.appointment_date, SUM(treatments.price) AS treatments_earnings
+                                  FROM treatments
+                                  JOIN appointment_treatments ON appointment_treatments.treatments_id = treatments.id
+                                  JOIN appointments ON appointment_treatments.appointments_id = appointments.id
+                                  WHERE appointments.appointment_date < CURRENT_DATE()
+                                  GROUP BY appointments.appointment_date, treatments.name
+                                  ORDER BY appointments.appointment_date DESC`;
+
 module.exports = {
   sqlPatientAndMedicalBackgroundInfo,
   sqlTreatmentsTeethMapInfo,
@@ -44,4 +52,5 @@ module.exports = {
   sqlIndividualAppointment,
   appointedTreatment,
   sqlEarnings,
+  sqlEarningsOrderedByDate,
 };
