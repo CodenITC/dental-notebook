@@ -21,6 +21,7 @@ router.get("/", (req, res) => {
   });
 });
 
+// GET /earnings/last-month
 router.get("/last-month", (req, res) => {
   const startDate = moment()
     .month(moment().month() - 1)
@@ -41,6 +42,7 @@ router.get("/last-month", (req, res) => {
   });
 });
 
+// GET /earnings/earnings-by-date
 router.get("/earnings-by-date", (req, res) => {
   connection.query(sqlEarningsOrderedByDate, (error, earningsByDateResults) => {
     if (error) res.status(500).send(error);
@@ -53,13 +55,3 @@ router.get("/earnings-by-date", (req, res) => {
 });
 
 module.exports = router;
-
-///////create earnings br
-
-// RETRIEVING INFO FROM EARNINGS
-
-// GET request (treatments.price)
-// http://localhost:5000/earnings
-
-// GET request by date (treatments.created_at)
-// http://localhost:5000/earnings/:date

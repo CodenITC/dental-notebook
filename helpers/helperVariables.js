@@ -1,4 +1,4 @@
-const sqlPatientAndMedicalBackgroundInfo = `SELECT patients.firstname,
+let sqlPatientAndMedicalBackgroundInfo = `SELECT patients.firstname,
   patients.id as patient_id, 
   patients.lastname, 
   patients.phone, 

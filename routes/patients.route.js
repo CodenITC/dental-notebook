@@ -9,7 +9,7 @@ const {
   patientObjectTemplate,
   medicalBackgroundObjectTemplate,
 } = require("../helpers/helperObjects");
-const {
+let {
   sqlPatientAndMedicalBackgroundInfo,
   sqlTreatmentsTeethMapInfo,
 } = require("../helpers/helperVariables");
@@ -99,7 +99,17 @@ router.post("/", (req, res) => {
                 [newPatientTeethMap],
                 (error, results) => {
                   if (error) res.status(500).send(error);
-                  else res.status(200).json(results);
+                  else {
+                    const sqlNewPatient = `${sqlPatientAndMedicalBackgroundInfo} WHERE patients.id = ?`;
+                    connection.query(
+                      sqlNewPatient,
+                      [newPatientId],
+                      (error, newPatientResults) => {
+                        if (error) res.status(500).send(error);
+                        else res.status(200).send(newPatientResults);
+                      }
+                    );
+                  }
                 }
               );
             }
