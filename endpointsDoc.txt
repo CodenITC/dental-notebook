@@ -39,6 +39,14 @@ POSTING INFO TO PATIENTS:
 POST request
 http://localhost:5000/patients
 
+POST TEETH_TREATMENT ON PATIENTS:
+http://localhost:5000/patients/teeth-treatments
+
+
+PUT TEETH_TREATMENT ON PATIENTS:
+http://localhost:5000/patients/teeth-treatments/:id
+
+
 
 UPDATING INFO ON PATIENTS:
 

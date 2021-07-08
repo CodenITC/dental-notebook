@@ -5,7 +5,8 @@
   "dependencies": {
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "mysql": "^2.18.1"
+    "moment": "^2.29.1",
+    "mysql2": "^2.2.5"
   },
   "name": "dental-notebook-back-end",
   "version": "1.0.0",
