@@ -1,3 +1,9 @@
+DROP DATABASE IF EXISTS dental_notebook;
+
+CREATE DATABASE dental_notebook;
+
+USE dental_notebook;
+
 CREATE TABLE `patients` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `firstname` varchar(150),
