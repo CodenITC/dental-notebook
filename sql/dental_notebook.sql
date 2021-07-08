@@ -22,14 +22,14 @@ CREATE TABLE `medical_background` (
   `has_hbd` boolean,
   `has_diabetes` boolean,
   `has_active_medication` boolean,
-  `active_medication` varchar(255),
+  `active_medication` varchar(750),
   `has_alergies` boolean,
-  `alergies` varchar(255)
+  `alergies` varchar(750)
 );
 
 CREATE TABLE `attachments` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
-  `url` varchar(255),
+  `url` varchar(500),
   `patient_id` int
 );
 
@@ -43,12 +43,12 @@ CREATE TABLE `treatments_teeth` (
   `teeth_map_id` int,
   `treatments_id` int,
   `tooth` int,
-  `dental_status` varchar(255)
+  `dental_status` varchar(300)
 );
 
 CREATE TABLE `treatments` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(255),
+  `name` varchar(300),
   `price` int,
   `created_at` datetime
 );
@@ -67,7 +67,7 @@ CREATE TABLE `appointments` (
 
 CREATE TABLE `todos` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
-  `todo_item` varchar(255)
+  `todo_item` varchar(450)
 );
 
 ALTER TABLE `attachments` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`);
