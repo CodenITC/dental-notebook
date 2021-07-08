@@ -2,15 +2,14 @@ const express = require("express");
 const router = express.Router();
 const moment = require("moment");
 const connection = require("../config-db");
-let {
+const {
   sqlEarnings,
   sqlEarningsOrderedByDate,
 } = require("../helpers/helperVariables");
 
 // GET /earnings
 router.get("/", (req, res) => {
-  let sqlTotalEarning = (sqlEarnings +=
-    " WHERE appointments.appointment_date < CURRENT_DATE()");
+  let sqlTotalEarning = `${sqlEarnings} WHERE appointments.appointment_date < CURRENT_DATE()`;
 
   connection.query(sqlTotalEarning, (error, results) => {
     if (error) res.status(500).send(error);
