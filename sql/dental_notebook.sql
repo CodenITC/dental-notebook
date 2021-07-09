@@ -62,7 +62,7 @@ CREATE TABLE `appointment_treatments` (
 CREATE TABLE `appointments` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `patient_id` int,
-  `appointment_date` date
+  `appointment_date` datetime
 );
 
 CREATE TABLE `todos` (
@@ -70,18 +70,18 @@ CREATE TABLE `todos` (
   `todo_item` varchar(450)
 );
 
-ALTER TABLE `attachments` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`);
+ALTER TABLE `attachments` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE;
 
-ALTER TABLE `teeth_map` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`);
+ALTER TABLE `teeth_map` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE;
 
-ALTER TABLE `treatments_teeth` ADD FOREIGN KEY (`teeth_map_id`) REFERENCES `teeth_map` (`id`);
+ALTER TABLE `treatments_teeth` ADD FOREIGN KEY (`teeth_map_id`) REFERENCES `teeth_map` (`id`) ON DELETE CASCADE;
 
-ALTER TABLE `treatments_teeth` ADD FOREIGN KEY (`treatments_id`) REFERENCES `treatments` (`id`);
+ALTER TABLE `treatments_teeth` ADD FOREIGN KEY (`treatments_id`) REFERENCES `treatments` (`id`) ON DELETE CASCADE;
 
-ALTER TABLE `medical_background` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`);
+ALTER TABLE `medical_background` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE;
 
 ALTER TABLE `appointment_treatments` ADD FOREIGN KEY (`appointments_id`) REFERENCES `appointments` (`id`) ON DELETE CASCADE;
 
 ALTER TABLE `appointment_treatments` ADD FOREIGN KEY (`treatments_id`) REFERENCES `treatments` (`id`) ON DELETE CASCADE;
 
-ALTER TABLE `appointments` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`);
+ALTER TABLE `appointments` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE;
