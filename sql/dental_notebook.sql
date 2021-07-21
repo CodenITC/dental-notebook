@@ -11,7 +11,7 @@ CREATE TABLE `patients` (
   `phone` varchar(255),
   `email` varchar(150),
   `occupation` varchar(150),
-  `age` int,
+  `birth_date` datetime,
   `created_at` datetime,
   `gender` varchar(50)
 );

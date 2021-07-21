@@ -4,7 +4,7 @@ const patientObjectTemplate = {
   phone: "",
   email: "",
   occupation: "",
-  age: "",
+  birth_date: "",
   created_at: "",
   gender: "",
 };
