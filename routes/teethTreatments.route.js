@@ -13,7 +13,8 @@ router.post("/", (req, res) => {
       else {
         const newTeethTreatmentsId = results.insertId;
         connection.query(
-          "SELECT * FROM treatments_teeth WHERE id = ?",
+          `SELECT treatments_teeth.id AS teeth_treatment_id, treatments_teeth.treatments_id, treatments_teeth.teeth_map_id, treatments_teeth.tooth, treatments_teeth.dental_status, treatments.name AS treatment_name FROM treatments_teeth
+              JOIN treatments ON treatments.id = treatments_teeth.treatments_id WHERE treatments_teeth.id = ?`,
           [newTeethTreatmentsId],
           (error, results) => {
             if (error) res.status(500).send(error);

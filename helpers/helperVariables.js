@@ -18,7 +18,7 @@ let sqlPatientAndMedicalBackgroundInfo = `SELECT patients.firstname,
   JOIN medical_background ON medical_background.patient_id = patients.id
   JOIN teeth_map ON teeth_map.patient_id = patients.id`;
 
-const sqlTreatmentsTeethMapInfo = `SELECT treatments.name as treatment_name, teeth_map.patient_id, treatments_teeth.tooth, treatments_teeth.dental_status
+const sqlTreatmentsTeethMapInfo = `SELECT treatments.name as treatment_name, treatments.id AS treatments_id, teeth_map.patient_id, treatments_teeth.tooth, treatments_teeth.dental_status, treatments_teeth.id AS teeth_treatment_id, treatments_teeth.teeth_map_id AS teeth_map_id
 FROM treatments_teeth
 JOIN treatments ON treatments_teeth.treatments_id = treatments.id
 JOIN teeth_map ON teeth_map.id = treatments_teeth.teeth_map_id`;
