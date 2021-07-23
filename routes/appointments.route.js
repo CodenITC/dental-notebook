@@ -61,7 +61,8 @@ router.post("/", (req, res) => {
 
         for (let i = 0; i < appointment_treatments.length; i++) {
           appointedTreatment = {
-            treatments_id: appointment_treatments[i],
+            treatments_id: appointment_treatments[i].treatment_id,
+            treatment_price: appointment_treatments[i].treatment_price,
             appointments_id: newAppointmentId,
           };
 
@@ -141,8 +142,12 @@ router.put("/:id", (req, res) => {
               for (let i = 0; i < treatmentsArray.length; i++) {
                 let appointmentTreatmentCreator = connection.query(
                   `INSERT INTO appointment_treatments
-                                  (appointments_id, treatments_id) VALUES (?, ?)`,
-                  [appointmentId, treatmentsArray[i]],
+                                  (appointments_id, treatments_id, treatment_price) VALUES (?, ?, ?)`,
+                  [
+                    appointmentId,
+                    treatmentsArray[i].treatments_id,
+                    treatmentsArray[i].treatment_price,
+                  ],
                   (err) => err && res.status(500).send(err)
                 );
                 queryPromises.push(appointmentTreatmentCreator);

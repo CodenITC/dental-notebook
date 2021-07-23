@@ -11,7 +11,7 @@ CREATE TABLE `patients` (
   `phone` varchar(255),
   `email` varchar(150),
   `occupation` varchar(150),
-  `birth_date` datetime,
+  `birth_date` date,
   `created_at` datetime,
   `gender` varchar(50)
 );
@@ -43,12 +43,12 @@ CREATE TABLE `treatments_teeth` (
   `teeth_map_id` int,
   `treatments_id` int,
   `tooth` int,
-  `dental_status` varchar(300)
+  `dental_status` varchar(500)
 );
 
 CREATE TABLE `treatments` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(300),
+  `name` varchar(500),
   `price` int,
   `created_at` datetime
 );
@@ -56,7 +56,8 @@ CREATE TABLE `treatments` (
 CREATE TABLE `appointment_treatments` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `treatments_id` int,
-  `appointments_id` int
+  `appointments_id` int,
+  `treatment_price` int
 );
 
 CREATE TABLE `appointments` (
@@ -67,7 +68,7 @@ CREATE TABLE `appointments` (
 
 CREATE TABLE `todos` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
-  `todo_item` varchar(450)
+  `todo_item` varchar(750)
 );
 
 ALTER TABLE `attachments` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE;

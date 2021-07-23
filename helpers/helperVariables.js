@@ -33,12 +33,17 @@ const sqlIndividualAppointment = `SELECT patients.firstname, patients.lastname, 
 
 const appointedTreatment = `SELECT * FROM appointment_treatments JOIN treatments ON treatments.id = appointment_treatments.treatments_id`;
 
-let sqlEarnings = `SELECT SUM(treatments.price) AS total_earnings
+let sqlEarnings = `SELECT SUM(appointment_treatments.treatment_price) AS total_earnings
                           FROM treatments
                           JOIN appointment_treatments ON treatments.id = appointment_treatments.treatments_id
                           JOIN appointments ON appointments.id = appointment_treatments.appointments_id`;
 
-let sqlEarningsOrderedByDate = `SELECT treatments.name, appointments.appointment_date, SUM(treatments.price) AS treatments_earnings
+/* let sqlEarnings = `SELECT SUM(treatments.price) AS total_earnings
+                          FROM treatments
+                          JOIN appointment_treatments ON treatments.id = appointment_treatments.treatments_id
+                          JOIN appointments ON appointments.id = appointment_treatments.appointments_id`; */
+
+let sqlEarningsOrderedByDate = `SELECT treatments.name, appointments.appointment_date, SUM(appointment_treatments.treatment_price) AS treatments_earnings
                                   FROM treatments
                                   JOIN appointment_treatments ON appointment_treatments.treatments_id = treatments.id
                                   JOIN appointments ON appointment_treatments.appointments_id = appointments.id
