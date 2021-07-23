@@ -49,7 +49,7 @@ let sqlEarningsOrderedByDate = `SELECT treatments.name, appointments.appointment
                                   JOIN appointments ON appointment_treatments.appointments_id = appointments.id
                                   WHERE appointments.appointment_date < CURRENT_DATE()
                                   GROUP BY appointments.appointment_date, treatments.name
-                                  ORDER BY appointments.appointment_date DESC`;
+                                  ORDER BY appointments.appointment_date ASC`;
 
 module.exports = {
   sqlPatientAndMedicalBackgroundInfo,
