@@ -16,27 +16,23 @@ const { appointmentsObjectTemplate } = require("../helpers/helperObjects");
 router.get("/", (req, res) => {
   connection.query(sqlPatientAppointment, (error, appointmentsResults) => {
     if (error) res.status(500).send(error);
-    else {
-      if (appointmentsResults.length) {
-        connection.query(appointedTreatment, (error, TreatmentResults) => {
-          if (error) res.status(500).send(error);
-          else {
-            for (let i = 0; i < appointmentsResults.length; i++) {
-              appointmentsResults[i].treatments = [];
-              for (let j = 0; j < TreatmentResults.length; j++) {
-                if (
-                  TreatmentResults[j].appointments_id ===
-                  appointmentsResults[i].appointments_id
-                ) {
-                  appointmentsResults[i].treatments.push(TreatmentResults[j]);
-                }
-              }
-            }
-            res.status(200).json(appointmentsResults);
+
+    connection.query(appointedTreatment, (error, TreatmentResults) => {
+      if (error) res.status(500).send(error);
+
+      for (let i = 0; i < appointmentsResults.length; i++) {
+        appointmentsResults[i].treatments = [];
+        for (let j = 0; j < TreatmentResults.length; j++) {
+          if (
+            TreatmentResults[j].appointments_id ===
+            appointmentsResults[i].appointments_id
+          ) {
+            appointmentsResults[i].treatments.push(TreatmentResults[j]);
           }
-        });
-      } else res.status(404).send("Appointments not found.");
-    }
+        }
+      }
+      res.status(200).json(appointmentsResults);
+    });
   });
 });
 
@@ -45,7 +41,7 @@ router.post("/", (req, res) => {
   const newAppointment = objectKeyFormatter(
     patientObjectTemplateCreator(req, appointmentsObjectTemplate)
   );
-
+  console.log(newAppointment);
   connection.query(
     "INSERT INTO appointments SET ?",
     [newAppointment],

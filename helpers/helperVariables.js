@@ -18,10 +18,10 @@ let sqlPatientAndMedicalBackgroundInfo = `SELECT patients.firstname,
   JOIN medical_background ON medical_background.patient_id = patients.id
   JOIN teeth_map ON teeth_map.patient_id = patients.id`;
 
-const sqlTreatmentsTeethMapInfo = `SELECT treatments.name as treatment_name, treatments.id AS treatments_id, teeth_map.patient_id, treatments_teeth.tooth, treatments_teeth.dental_status, treatments_teeth.id AS teeth_treatment_id, treatments_teeth.teeth_map_id AS teeth_map_id
-FROM treatments_teeth
-JOIN treatments ON treatments_teeth.treatments_id = treatments.id
-JOIN teeth_map ON teeth_map.id = treatments_teeth.teeth_map_id`;
+const sqlTreatmentsTeethMapInfo = `SELECT treatments.name as treatment_name, treatments.id AS treatments_id, teeth_map.patient_id, patient_treatments.tooth, patient_treatments.dental_status, patient_treatments.id AS teeth_treatment_id, patient_treatments.teeth_map_id AS teeth_map_id
+FROM patient_treatments
+JOIN treatments ON patient_treatments.treatments_id = treatments.id
+JOIN teeth_map ON teeth_map.id = patient_treatments.teeth_map_id`;
 
 const sqlPatientAppointment = `SELECT patients.firstname, patients.lastname, patients.phone, appointments.appointment_date, appointments.id AS appointments_id, patients.id AS patient_id
   FROM patients JOIN appointments ON patients.id = appointments.patient_id`;

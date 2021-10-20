@@ -6,10 +6,8 @@ const connection = require("../config-db");
 router.get("/", (req, res) => {
   connection.query("SELECT * FROM treatments", (error, results) => {
     if (error) res.status(500).send(error);
-    else {
-      if (results.length) res.status(200).json(results);
-      else res.status(404).send("Treatments not found.");
-    }
+
+    res.status(200).json(results);
   });
 });
 
