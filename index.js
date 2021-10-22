@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -17,6 +18,9 @@ connection.connect((error) => {
   else console.log(`connected to database on thread ${connection.threadId}`);
 });
 
+// 194.13.82.114:5000
+
+app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
